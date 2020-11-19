@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Daniel Bertinshaw</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.11.0/underscore-min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://kit.fontawesome.com/14bfc21317.js" crossorigin="anonymous"></script>
+    <style media="screen">
+      @import url('https://fonts.cdnfonts.com/css/bitstream-vera-sans');
+
+      * {
+        font-family: 'Bitstream Vera Sans', sans-serif;
+      }
+      .jumbotron, h1, h2, h3, h4, h5, h6 {
+        font-weight: bolder;
+        font-variant-caps: small-caps;
+        color: #195c71;
+        clear: both;
+      }
+
+      .jumbotron {
+        border-radius: 0;
+        background-image: linear-gradient(to bottom right, #195c71, #223C4A);
+
+      }
+       h1, h2 {
+        color: #BBB;
+      }
+
+      h3 {
+        margin-top: 1em;
+        border-bottom: 2px solid #195c71;
+      }
+
+      ul {
+        list-style-type: none;
+        padding-left: 2em;
+      }
+
+      h4 {
+        padding-top: 0.8em;
+      }
+
+      h4 span {
+        margin-bottom: 0.5em;
+      }
+
+      div.general-section {
+        padding-left: 1em;
+      }
+
+
+      div.soft-skills {
+        padding-left: 1em;
+      }
+
+      span.date {
+        float: right;
+      }
+
+      p, li {
+        color: #444;
+        padding-top: 0.3em;
+        padding-bottom: 0.3em;
+      }
+
+      .sidebar {
+        font-size: smaller;
+      }
+      .sidebar li {
+        padding: 0.2em;
+      }
+      .sidebar ul{
+        margin: 0em;
+        padding-left: 1em;
+      }
+      .sidebar h4 {
+        padding-top: 0em;
+        margin: 0.2em 0 0.2em 0 ;
+      }
+
+      a {
+        color: #195c71;
+      }
+
+      a.in-viewport {
+        font-weight: bolder;
+      }
+
+      a:hover {
+        color: #195c71;
+        background-color: transparent;
+        /* this isn't working */
+      }
+      col.minor-skill-indent {
+        width: 2em;
+      }
+
+      col.skill-pips {
+        width: 8em;
+      }
+
+      table {
+        border-collapse: collapse;
+      }
+
+      tr.tech-skill-major {
+        margin-top: 5em;
+      }
+
+      tr.tech-skill-major td {
+        padding: 2em 0.5em 0.5em 0.5em;
+        border-bottom: 3px solid #195c71;
+      }
+
+      tr.tech-skill-minor td {
+        padding: 0.5em 0.5em 0.5em 0.5em;
+        border-bottom: 1px solid #444;
+      }
+
+
+      tr.tech-skill-minor :first-child{
+        border-bottom: 0px solid #444;
+      }
+    </style>
+    <script type="text/javascript">
+      function populatePips() {
+        function pipArray(pips) {
+          return [1,2,3,4,5].map( i => (i <= pips)? '<i class="far fa-dot-circle"></i>':'<i class="far fa-circle"></i>');
+        }
+
+        $('span.pips').each(function(ind, elem){
+          var pips = $(elem).data('pips');
+          $(elem).html(pipArray(pips));
+        });
+      }
+
+      function populateContents() {
+        $('div.main-content h3').each(function(i1, e1) {
+          var contentsList = $('#contents-list');
+
+          function wireContents(element, text, parentList) {
+            var elementName = text;
+            var anchorName = text.toLowerCase().replace(/[^A-Za-z0-9]+/g, '-');
+            element.prepend('<a id="anchor-'+anchorName+'" name="'+anchorName+'" class="heading-anchor"></a>');
+            parentList.append('<li><a id="link-'+anchorName+'" href="#'+anchorName+'" class="contents-link">'+elementName+'</a>');
+            return anchorName;
+          }
+
+
+          var element = $(e1);
+          var anchorName = wireContents(element, element.html(), contentsList);
+          var subHeadings = element.next('div').find('h4');
+          if (subHeadings.length > 0) {
+            var subList = contentsList.append('<ul id="'+anchorName+'"></ul>').find('ul#'+anchorName)
+            subHeadings.each(function(i2, e2) {
+              wireContents($(e2), e2.firstChild.wholeText, subList);
+            })
+          }
+          contentsList.append('</li>');
+        })
+      }
+
+      function isInView(e) {
+        var viewportTop = $(window).scrollTop();
+        var viewportBottom = viewportTop + $(window).height();
+        var boundingDiv = $(e).parent().next()
+        var elementTop = boundingDiv.offset().top;
+        var elementBottom = elementTop + boundingDiv.height();
+        return !(elementTop >= viewportBottom) && !(elementBottom <= viewportTop);
+      }
+
+      function highlightSections() {
+        $('.contents-link').removeClass('in-viewport')
+        $('.heading-anchor')
+          .toArray()
+          .filter(isInView)
+          .map(e => $(e).attr('id').replace('anchor-', 'link-'))
+          .map(e => $('#'+e))
+          .forEach(e => e.addClass('in-viewport'))
+      }
+
+      function displayTechnicalData() {
+        $('#pip-bar').hide()
+        if(isInView($('#anchor-technical-skills'))) {
+          $('#pip-bar').show()
+        }
+      }
+
+
+      $(document).ready(function(){
+        populatePips();
+        populateContents();
+        displayTechnicalData();
+        $(document).scroll(function() {
+          highlightSections();
+          displayTechnicalData();
+        });
+      });
+
+    </script>
+  </head>
+  <body>
+    <div class="jumbotron text-center">
+      <h1>Daniel Bertinshaw</h1>
+      <h2>A Comprehensive Cirruculum Vitæ</h2>
+    </div>
+
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-9  main-content">
+
+            <h3>At a Glance</h3>
+            <div class="general-section">
+            <ul>
+              <li>Passionate about new technology: always aiming to create the future.</li>
+              <li>Rigorous engineering and scientific methodologies: always aiming to build the best.</li>
+              <li>Devoted to acquiring and fostering talent: always aiming to encourage excellent teams</li>
+              <li>Consistent success as an integral part large scale projects with teams of up to 20 people, with up to 4 reporting to me.</li>
+              <li>Wide range of leadership & team, scientific, and technical skills.</li>
+              <li>10 years industry experience in multi-stack environments.</li>
+              <li>4 years research experience in distributed systems and knowledge management.</li>
+              <li>4 years training and mentoring experience in a university environment as a tutor.</li>
+            </ul>
+            </div>
+
+            <h3>Current Employment Goals</h3>
+            <div class="general-section">
+            <ul>
+              <li>Looking to return to work after a hiatus.</li>
+              <li>Looking to advance toward roles in technical leadership with a decision making focus.</li>
+              <li>Considering a wide range of employment styles:
+                <ul>
+                  <li>Part time or flexible hours</li>
+                  <li>Remote work</li>
+                  <li>On-site in Dunedin (where wheelchair access is available)</li>
+                </ul>
+              </li>
+              <li>Remuneration expectations dependent on work expectations and flexibility afforded.</li>
+            </ul>
+            </div>
+
+            <h3>Work History</h3>
+            <div class="general-section">
+
+            <h4>9 Spokes<span class="date">Jun 2017 - Oct 2017</span></h4>
+            <div>
+            <h5>Build Engineer</h5>
+              <ul>
+                <li>Rebuilt entire maven build system to unify build plugins (including coverage, static analysis, and integration testing) with profiles, reducing developer load to a set of 5 maven commands.</li>
+                <li>Analysed and unified the entire external dependency set, allowing a single project to be the reporting point for the entire organisation's security risk for known CVEs.</li>
+                <li>Created a release management script, reducing the person hours in release planning from ~60 hours to ~5 hours.</li>
+              </ul>
+            </div>
+
+            <h4>Paymark<span class="date">Sept 2014 - Jun 2017</span></h4>
+            <div>
+            <h5>Senior Engineer</h5>
+              <ul>
+                <li>Worked on all java microservices (~30) deployed during my employment.
+                  <ul>
+                    <li>Created an automated skeleton generator to reduce developer effort.</li>
+                    <li>Delivered regular improvements to the shared libraries from the initial prototypes.</li>
+                    <li>Delivered regular improvements to the testing, structural analysis, and code quality.</li>
+                  </ul>
+                </li>
+                <li>Primary driver of the development and deployment of the build chain and tooling systems, leading to a near seamless developer experience.
+                  <ul>
+                    <li>Built the majority of the delivery toolchain around gradle, eclipse, java, jenkins, gitlab, artifactory, bash, puppet, sonarqube.</li>
+                    <li>Implemented the use of full dependency management, including switching management tools without re-writing code.</li>
+                    <li>Tools are also currently used across windows, mac and linux platforms.</li>
+                    <li>Integrated development team tools with product team tools and shared tools to provide constant feedback on the state of work items.</li>
+                    <li>Very strong automation focus.</li>
+                    <li>Rapidly rolled out regular improvements based on feedback from engineers.</li>
+                  </ul>
+                </li>
+                <li>Primary driver for the development of institutional engineering process and standards.
+                  <ul>
+                    <li>Including coding standards, best practices, review strategies.</li>
+                    <li>Also included development of automated code quality analysis and metrics, including various standard engineering metrics and some developed in-house.</li>
+                    <li>Instituted and chaired various forums to ensure ideas are shared and approaches are consistent.</li>
+                    <li>Created various technical documentation standards (including the generation of automated documentation), and self documenting processes like code formatters.</li>
+                    <li>Ensured the process was PCI compliant, reporting to PCI auditors yearly.</li>
+                    <li>Lead development  on large mission critical projects.</li>
+                    <li>Project was required to process 250 TPS max, but was clocked at 1.2K TPS on double EC2 C3 instances.</li>
+                    <li>Successfully introduced actor based processing technology using akka while making the implementation code look like spring beans to reduce complexity and skills gap.</li>
+                  </ul>
+                </li>
+                <li>Liaised with external contractors.
+                  <ul>
+                    <li>Worked with external technical staff on deciding application engineering principles for the web; including stack, frameworks, languages and build tools.</li>
+                    <li>Maintained technical dialogue with contractors, communicating technical needs on behalf of the product team. </li>
+                    <li>Created an automated integration for the build so that the external code could be pulled, merged, and deployed automatically.  Reviews were still manual by design.</li>
+                  </ul>
+                </li>
+                <li>Managed in house git server for ~200 projects (~1000 private forks) with ~30 users at any given time including internal and external contractors with special attention to code security and quality.</li>
+                <li>Actively involved in team building and hiring for technical staff during a departmental growth from 5 employees to ~50 employees.
+                  <ul>
+                    <li>Involved in ~50 technical interviews, 7 of which lead to successful employee engagements (both permanent staff and contractors).</li>
+                    <li>Developed several interview questions, eventually handing them over to other technical staff to enable more staff being involved in hiring.</li>
+                    <li>As part of my exit process reviewed ~300 CVs for my replacement.</li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
+
+            <h4>Active Mobile Security<span class="date">Jun 2013 - Jul 2014</span></h4>
+            <div>
+            <h5>Systems Programmer</h5>
+              <ul>
+                <li>Added real time remote logging and monitoring to the flagship product: a security framework for native android.
+                  <ul>
+                    <li>Enabling near-real time error reporting and threat analysis on devices.</li>
+                  </ul>
+                </li>
+                <li>Reworked to policy storage from SQL to noSQL/JSON, simplifying device security policy definition.
+                  <ul>
+                    <li>Reducing test data generation overhead.</li>
+                    <li>Removing over 20% of the project’s technical debt with no performance decrease.</li>
+                    <li>JSON allowed the creation of a remote delivery method for policy definitions.</li>
+                  </ul>
+                </li>
+                <li>Created a DSL for expert users to express policies.
+                  <ul>
+                    <li>Created an eclipse based editor with common modern features like auto-completion and syntax highlighting.</li>
+                    <li>Allowed new security policies to be deployed to device over-the-air at a button press.</li>
+                    <li>Added demo capability to the product by allowing expert users (security engineers) to define their own rules easily.</li>
+                  </ul>
+                </li>
+              </ul>
+            <h5>Application Architect (Mobile Device Manager Project)</h5>
+              <ul>
+                <li>Designed and implemented a web based service oriented application.
+                  <ul>
+                    <li>Abstracted data serialisation, validation annotations, and transactional support.</li>
+                    <li>Project went from concept to Minimal Viable Product in 3 months with a team of two.</li>
+                  </ul>
+                </li>
+                <li>Developed reactive web-based UI for the Mobile Device Manager.
+                  <ul>
+                    <li>Rapid turnover of change integration during interface prototyping.</li>
+                    <li>Real time KPI dashboard.</li>
+                    <li>Enabled non-developers to own device policy management.</li>
+                  </ul>
+                </li>
+                <li>Setup fully automated build, testing (unit, regression, e2e), dependency control (for inhouse, 3rd party published and third party unpublished), and version control in continuous integration.
+                  <ul>
+                    <li>Increasing project productivity and quality control.</li>
+                    <li>Time-to-live from commit to the QA server of ~30 mi.</li>
+                  </ul>
+                </li>
+                <li>Provided training and support to interns with a focus on testing.
+                  <ul>
+                    <li>Provided trainging and access to frameworks and tools for interns working on testing.</li>
+                    <li>Interns were able to implement end to end tests with full coverage in 3 weeks.</li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
+
+          <h4>Computer Science Department, Auckland University<span class="date">2009 - 2013</span></h4>
+          <div>
+          <h5>Research Programmer</h5>
+            <ul>
+              <li>Setup issue management in JIRA for the Cardiac Atlas project, integrated with source control.
+                <ul>
+                  <li>Giving the team oversight over the project scope and changes.</li>
+                  <li>Created documentation for the existing product, enabled future developers to continue work.</li>
+                  <li>Created a new build process with no manual steps.</li>
+                </ul>
+              </li>
+              <li>Created Studysieve, a collaborative education tool; built on a LAMP stack.
+                <ul>
+                  <li>Sole designer and engineer of product.</li>
+                  <li>Provided ongoing technical support as sole developer for a user base of ~600 students.</li>
+                  <li>Studysieve has been in deployment with minimal support and incident free since 2011.</li>
+                </ul>
+              </li>
+              <li>Modernised and streamlined PL-SQL codebase for REGIONLS, a collaborative education tool.
+                <ul>
+                  <li>Allowed the project to go forward for more funding.</li>
+                  <li>Created documentation for the existing product,  enabled future developers to continue work.</li>
+                </ul>
+              </li>
+              <li>Integrated R into an existing survey system as a web service for the education school.
+                <ul>
+                  <li>Delivering real time statistical analysis to education professionals in industry.</li>
+                </ul>
+              </li>
+            </ul>
+
+          <h5>Course Coordinator and Tutor</h5>
+            <ul>
+              <li>Provided easily digestible training materials for a variety of courses.
+                <ul>
+                  <li>Course content included: AI, software design, testing, security, and computer systems.</li>
+                  <li>Achieved an 85% student approval rate and improved test results across the courses.</li>
+                </ul>
+              </li>
+              <li>Resolved disputes with students over marking criteria and addressed cheating allegations.</li>
+              <li>Managed course assessment teams.
+                <ul>
+                  <li>Coordinated marking for up to three courses at a time.</li>
+                  <li>Lead teams of markers comprising 4-7 people per course.</li>
+                  <li>Addressed poor team member performance.</li>
+                  <li>Addressed and resolved incidents of inappropriate team member behaviour.</li>
+                </ul>
+              </li>
+            </ul>
+            <h5>PhD Candidate</h5>
+            <ul>
+              <li>Regularly pitched complex ideas to people who did not possess the technical language of the project.</li>
+              <li>Created a DSL for distributed planning algorithms, allowing high level system descriptions and formal proofs to be created for distributed planning systems with heterogeneous planners.</li>
+              <li>Created a method to convert OWL ontologies and OWL-S service descriptors to domain specific planning notations. Allowing heterogeneous domain specific planners to solve complex problems.</li>
+              <li>Created a design for an algorithm and prototype collaborative semantic service oriented planning system. Demonstrating the feasibility of the DSL and collaboration of heterogeneous planners.</li>
+            </ul>
+          </div>
+
+          <h4>GSB / Conexa<span class="date">2005 - 2009</span></h4>
+          <div>
+          <h5>Business Analyst</h5>
+            <ul>
+              <li>Implemented robust reporting functionality based on MS Reporting Server
+                <ul>
+                  <li>Enabled the delivery real time reports to clients.</li>
+                </ul>
+              </li>
+              <li>Created a small scale data warehouse that included simple GIS.
+                <ul>
+                  <li>Added institutional capability to analyse sales and contract trends among clients.</li>
+                </ul>
+              </li>
+            </ul>
+
+          <h5>Full Stack Developer</h5>
+            <ul>
+              <li>Supported creation of expert system for fleet management in MS Excel and SQL.
+                <ul>
+                  <li>Allowed this to be safely exposed to clients without exposing business logic.</li>
+                  <li>Supported process of migrating expert system written in MS Excel to server side code.</li>
+                </ul>
+              </li>
+              <li>Integrated existing CRM and Issue management into a custom CMS.
+                <ul>
+                  <li>Enabled client relations to increase issue turnover.</li>
+                  <li>Enabled sales staff to deliver high quality and tailored material on the web.</li>
+                </ul>
+              </li>
+              <li>Created a voucher system integrating CRM data that allowed clients to get personal discounts from suppliers.</li>
+              <li>Upgraded several legacy systems to then current SOA technologies.
+                <ul>
+                  <li>Simplified integration with clients, suppliers, and partners.</li>
+                </ul>
+              </li>
+              <li>Set up internal wiki to capture corporate knowledge.
+                <ul>
+                  <li>Reducing the human error in documenting business processes.</li>
+                  <li>Allowing in house knowledge to be shared faster and enable collaboration.</li>
+                </ul>
+              </li>
+              <li>Actively in the hiring process for a replacement and provided training during the handover process, reducing overall training time for new employees.</li>
+            </ul>
+          </div>
+          </div>
+
+          <h3>Leadership & Teamwork Skills</h3>
+          <div class="general-section">
+          <h5>Communication</h5>
+            <div class="row soft-skills">
+            <div class="col-sm-6">
+              <p>Highly proficient spoken and written communication</p>
+              <p>Knowledge management and recording</p>
+              <p>Report design and delivery</p>
+              <p>Professionalism and office etiquette</p>
+            </div>
+            <div class="col-sm-6">
+              <p>Technical writing and documentation</p>
+              <p>Contractor liasing and relationship management</p>
+              <p>Peer programming and review</p>
+            </div>
+            </div>
+
+          <h5>Leadership</h5>
+            <div class="row soft-skills">
+            <div class="col-sm-6">
+              <p>Training and Education</p>
+              <p>Mentoring</p>
+              <p>Effective delegation and feedback</p>
+            </div>
+            <div class="col-sm-6">
+              <p>Chairing meetings/forums</p>
+              <p>Dispute resolution</p>
+              <p>Fostering team identity and cohesion</p>
+            </div>
+            </div>
+
+          <h5>Project Management</h5>
+            <div class="row soft-skills">
+            <div class="col-sm-6">
+              <p>Waterfall model: design, planning, implementation, review.</p>
+              <p>Agile Models: Scrum, Kanban, RAD, XP</p>
+              <p>Time Management</p>
+              <p>Expectation management</p>
+              <p>Effort estimation techniques</p>
+            </div>
+            <div class="col-sm-6">
+              <p>Budget estimation and projection</p>
+              <p>Task planning and scheduling</p>
+              <p>Performance Measurement</p>
+              <p>Progress reporting</p>
+            </div>
+            </div>
+
+          <h5>Teamwork and Peer Support</h5>
+            <div class="row soft-skills">
+            <div class="col-sm-6">
+              <p>Fostering uplifting office culture</p>
+              <p>Delivery pressure management</p>
+              <p>Initiating and maintaining motivation</p>
+            </div>
+            <div class="col-sm-6">
+              <p>Peer emotional support</p>
+              <p>Burnout avoidance</p>
+              <p>Overcommitment recognition</p>
+            </div>
+            </div>
+          </div>
+
+          <h3>Conceptual and Theory Skills</h3>
+          <div class="general-section">
+          <h5>Problem Solving</h5>
+            <div class="row soft-skills">
+            <div class="col-sm-6">
+              <p>Creativity and Innovation</p>
+              <p>Lateral and "out of the box" Thinking</p>
+              <p>Initiative Taking</p>
+            </div>
+            <div class="col-sm-6">
+              <p>Adaptable and Flexible Thinking</p>
+              <p>Collaboration and Teamwork</p>
+              <p>Critical Thinking and Troubleshooting</p>
+            </div>
+            </div>
+
+          <h5>Software Engineering</h5>
+            <div class="row soft-skills">
+            <div class="col-sm-6">
+              <p>Continuous Integration and Deployment</p>
+              <p>Development and Build Tooling and Automation</p>
+              <p>DevOps and ChatOps</p>
+              <p>Behaviour Driven Development</p>
+              <p>Test Driven Development</p>
+            </div>
+            <div class="col-sm-6">
+              <p>Enterprise and Application Architecture</p>
+              <p>Automation of QA and Testing</p>
+              <p>Project managment / SDLC: Agile, Lean, Waterfall</p>
+              <p>Functional effort and technical debt estimation</p>
+              <p>Design Patterns</p>
+            </div>
+            </div>
+
+          <h5>Programming paradigms</h5>
+            <div class="row soft-skills">
+            <div class="col-sm-6">
+              <p>Object Oriented Design</p>
+              <p>Functional Programming</p>
+              <p>Component Modelling and Injection</p>
+              <p>Task Driven Design</p>
+              <p>Aspect Oriented Design</p>
+            </div>
+            <div class="col-sm-6">
+              <p>Annotation Driven Design</p>
+              <p>Distributed Systems Design</p>
+              <p>Concurrent programming</p>
+              <p>Service Oriented Architectures</p>
+              <p>Event Models and Messaging Systems</p>
+            </div>
+            </div>
+
+          <h5>Mathematics</h5>
+            <div class="row soft-skills">
+            <div class="col-sm-6">
+              <p>Calculus & Linear Algebra</p>
+              <p>Statistics & Probability</p>
+              <p>Graph Theory</p>
+              <p>Combinatorics</p>
+              <p>Game theory</p>
+            </div>
+            <div class="col-sm-6">
+              <p>Computation & Complexity</p>
+              <p>Abstract Algebra</p>
+              <p>Formal Logic(s)</p>
+              <p>Classical geometry</p>
+              <p>Unconventional Computation (including quantum)</p>
+            </div>
+            </div>
+
+          <h5>Artificial Intelligence</h5>
+            <div class="row soft-skills">
+            <div class="col-sm-6">
+              <p>Search Algorithms</p>
+              <p>Machine Learning & Data Mining</p>
+              <p>Automated Planning Algorithms</p>
+            </div>
+            <div class="col-sm-6">
+              <p>Ontological Modelling</p>
+              <p>Knowledge Elicitation</p>
+              <p>Automated Reasoning</p>
+            </div>
+            </div>
+
+          <h5>Programming Language Design</h5>
+            <div class="row soft-skills">
+            <div class="col-sm-6">
+              <p>Domain Specific Language Design</p>
+              <p>Parser Generation and Integration</p>
+              <p>Syntax and Grammar Definition</p>
+            </div>
+            <div class="col-sm-6">
+              <p>Compiler and VM Theory</p>
+              <p>Meta-Object Protocols</p>
+              <p>Pragmatics and Semantics</p>
+            </div>
+            </div>
+
+          <h5>Research</h5>
+            <div class="row soft-skills">
+            <div class="col-sm-6">
+              <p>Techniques for Remaining Current</p>
+              <p>Literature Search</p>
+              <p>Results Reporting</p>
+              <p>State of Art Review</p>
+            </div>
+            <div class="col-sm-6">
+              <p>Technology Review</p>
+              <p>Standards Compliance</p>
+              <p>Experimental Methodology</p>
+            </div>
+            </div>
+        </div>
+
+        <h3>Technical Skills</h3>
+        <div class="general-section">
+
+        <table>
+        	<colgroup>
+        		<col class="minor-skill-indent"/>
+        		<col class="skill-description" />
+        		<col class="skill-pips" />
+        	</colgroup>
+        	<tr class="tech-skill-major">
+        		<td colspan="2">Java</td>
+        		<td><span class="pips" data-pips="5"></span></td>
+        	</tr>
+        	<tr class="tech-skill-minor">
+        		<td></td>
+        		<td>JPA, JTA, Aspectj, Spring, JAX-RS, JAX-WS, JAXB, Jackson, Hibernate, Servlet 3, JSP, JSTL, Spring 2+, JNI, Bytecode instrumentation, Camel, Lucene, Apache Commons</td>
+        		<td><span class="pips" data-pips="5"></span></td>
+        	</tr>
+        	<tr class="tech-skill-minor">
+        		<td></td>
+        		<td>Groovy</td>
+        		<td><span class="pips" data-pips="5"></span></td>
+        	</tr>
+        	<tr class="tech-skill-minor">
+        		<td></td>
+        		<td>Guice, Android (2.2+), JBehave, JCE and BouncyCastle, Drools</td>
+        		<td><span class="pips" data-pips="3"></span></td>
+        	</tr>
+        	<tr class="tech-skill-minor">
+        		<td></td>
+        		<td>EJB, JWT, jPos, Kafka</td>
+        		<td><span class="pips" data-pips="2"></span></td>
+        	</tr>
+        	<tr class="tech-skill-minor">
+        		<td></td>
+        		<td>Kotlin / Android 4+</td>
+        		<td><span class="pips" data-pips="3"></span></td>
+        	</tr>
+        	<tr class="tech-skill-major">
+        		<td colspan="2">Scala</td>
+        		<td><span class="pips" data-pips="5"></span></td>
+        	</tr>
+        	<tr class="tech-skill-minor">
+        		<td></td>
+        		<td>Akka</td>
+        		<td><span class="pips" data-pips="5"></span></td>
+        	</tr>
+        	<tr class="tech-skill-minor">
+        		<td></td>
+        		<td>Play, Lightbend</td>
+        		<td><span class="pips" data-pips="3"></span></td>
+        	</tr>
+        	<tr class="tech-skill-major">
+        		<td colspan="2">LISP</td>
+        		<td></td>
+        	</tr>
+        	<tr class="tech-skill-minor">
+        		<td></td>
+        		<td>Scheme, CLIPS, Common Lisp (SBCL)</td>
+        		<td><span class="pips" data-pips="3"></span></td>
+        	</tr>
+        	<tr class="tech-skill-minor">
+        		<td></td>
+        		<td>Clojure</td>
+        		<td><span class="pips" data-pips="2"></span></td>
+        	</tr>
+        	<tr class="tech-skill-major">
+        		<td colspan="2">Prolog</td>
+        		<td><span class="pips" data-pips="3"></span></td>
+        	</tr>
+        	<tr class="tech-skill-major">
+        		<td colspan="2">C/C++</td>
+        		<td></td>
+        	</tr>
+        	<tr class="tech-skill-minor">
+        		<td></td>
+        		<td>C</td>
+        		<td><span class="pips" data-pips="3"></span></td>
+        	</tr>
+        	<tr class="tech-skill-minor">
+        		<td></td>
+        		<td>C++11, Boost, STL</td>
+        		<td><span class="pips" data-pips="5"></span></td>
+        	</tr>
+        	<tr class="tech-skill-minor">
+        		<td></td>
+        		<td>C++14, C++17, C++20</td>
+        		<td><span class="pips" data-pips="2"></span></td>
+        	</tr>
+        	<tr class="tech-skill-major">
+        		<td colspan="2">.NET</td>
+        		<td></td>
+        	</tr>
+        	<tr class="tech-skill-minor">
+        		<td></td>
+        		<td>C# 2.X, 3.5, ASP.NET 3.5, WCF</td>
+        		<td><span class="pips" data-pips="4"></span></td>
+        	</tr>
+        	<tr class="tech-skill-minor">
+        		<td></td>
+        		<td>C# 7.X, VB.NET, Unity, Mono, WPF</td>
+        		<td><span class="pips" data-pips="3"></span></td>
+        	</tr>
+        	<tr class="tech-skill-minor">
+        		<td></td>
+        		<td>F#, Xamarin</td>
+        		<td><span class="pips" data-pips="1"></span></td>
+        	</tr>
+        	<tr class="tech-skill-major">
+        		<td colspan="2">JavaScript</td>
+        		<td><span class="pips" data-pips="5"></span></td>
+        	</tr>
+        	<tr class="tech-skill-minor">
+        		<td></td>
+        		<td>jQuery, Angular.js, Underscore.js</td>
+        		<td><span class="pips" data-pips="5"></span></td>
+        	</tr>
+        	<tr class="tech-skill-minor">
+        		<td></td>
+        		<td>Node.js, nvd3, typescript</td>
+        		<td><span class="pips" data-pips="3"></span></td>
+        	</tr>
+        	<tr class="tech-skill-minor">
+        		<td></td>
+        		<td>Backbone.js, React.js</td>
+        		<td><span class="pips" data-pips="2"></span></td>
+        	</tr>
+        	<tr class="tech-skill-minor">
+        		<td></td>
+        		<td>React Native, Electron</td>
+        		<td><span class="pips" data-pips="2"></span></td>
+        	</tr>
+        	<tr class="tech-skill-major">
+        		<td colspan="2">Python</td>
+        		<td><span class="pips" data-pips="3"></span></td>
+        	</tr>
+        	<tr class="tech-skill-major">
+        		<td colspan="2">Web</td>
+        		<td></td>
+        	</tr>
+        	<tr class="tech-skill-minor">
+        		<td></td>
+        		<td>HTML5, DOM, CSS3, Bootstrap, Responsive Templating</td>
+        		<td><span class="pips" data-pips="5"></span></td>
+        	</tr>
+        	<tr class="tech-skill-minor">
+        		<td></td>
+        		<td>LESS, SASS, XHTML</td>
+        		<td><span class="pips" data-pips="2"></span></td>
+        	</tr>
+        	<tr class="tech-skill-major">
+        		<td colspan="2">Testing and QA</td>
+        		<td></td>
+        	</tr>
+        	<tr class="tech-skill-minor">
+        		<td></td>
+        		<td>Java and Scala (jUnit 2, jUnit 4, Spring-test, NGTest, ScalaTest, Mockito)<br /> Client testing tools (Selenium, Protractor, Cucumber, PhantomJS)<br />Code coverage (JaCoCo, Cobertura, Scoverage, jsCoverage)
+        		</td>
+        		<td><span class="pips" data-pips="5"></span></td>
+        	</tr>
+        	<tr class="tech-skill-minor">
+        		<td></td>
+        		<td>Fitnesse, Jmeter</td>
+        		<td><span class="pips" data-pips="2"></span></td>
+        	</tr>
+        	<tr class="tech-skill-major">
+        		<td colspan="2">Virtualisation and IaaS</td>
+        		<td></td>
+        	</tr>
+        	<tr class="tech-skill-minor">
+        		<td></td>
+        		<td>AWS (EC2, ECS, IAM, SQS, SES, RDS, SNS)</td>
+        		<td><span class="pips" data-pips="5"></span></td>
+        	</tr>
+        	<tr class="tech-skill-minor">
+        		<td></td>
+        		<td>Virtualbox, Vagrant, AWS (S3, cloud formation, cloudtrail, lambda)</td>
+        		<td><span class="pips" data-pips="4"></span></td>
+        	</tr>
+        	<tr class="tech-skill-minor">
+        		<td></td>
+        		<td>Docker, Open stacks, Google Cloud</td>
+        		<td><span class="pips" data-pips="2"></span></td>
+        	</tr>
+        	<tr class="tech-skill-major">
+        		<td colspan="2">Build Tools</td>
+        		<td></td>
+        	</tr>
+        	<tr class="tech-skill-minor">
+        		<td></td>
+        		<td>Ant, Maven, Gradle</td>
+        		<td><span class="pips" data-pips="5"></span></td>
+        	</tr>
+        	<tr class="tech-skill-minor">
+        		<td></td>
+        		<td>SBT</td>
+        		<td><span class="pips" data-pips="3"></span></td>
+        	</tr>
+        	<tr class="tech-skill-minor">
+        		<td></td>
+        		<td>Make / CMake, Grunt, Gulp, NPM</td>
+        		<td><span class="pips" data-pips="2"></span></td>
+        	</tr>
+        	<tr class="tech-skill-major">
+        		<td colspan="2">Source Control</td>
+        		<td></td>
+        	</tr>
+        	<tr class="tech-skill-minor">
+        		<td></td>
+        		<td>Git, SVN</td>
+        		<td><span class="pips" data-pips="5"></span></td>
+        	</tr>
+        	<tr class="tech-skill-minor">
+        		<td></td>
+        		<td>CVS, Mercurial</td>
+        		<td><span class="pips" data-pips="2"></span></td>
+        	</tr>
+        	<tr class="tech-skill-major">
+        		<td colspan="2">Dependency Management</td>
+        		<td></td>
+        	</tr>
+        	<tr class="tech-skill-minor">
+        		<td></td>
+        		<td>Ivy, Maven, Bower, NPM/yarn</td>
+        		<td><span class="pips" data-pips="5"></span></td>
+        	</tr>
+        	<tr class="tech-skill-minor">
+        		<td></td>
+        		<td>RPM, apt/dpkg</td>
+        		<td><span class="pips" data-pips="3"></span></td>
+        	</tr>
+        	<tr class="tech-skill-minor">
+        		<td></td>
+        		<td>nuGet</td>
+        		<td><span class="pips" data-pips="2"></span></td>
+        	</tr>
+        	<tr class="tech-skill-major">
+        		<td colspan="2">Continuous integration &amp; Deployment</td>
+        		<td></td>
+        	</tr>
+        	<tr class="tech-skill-minor">
+        		<td></td>
+        		<td>Jenkins/Hudson, GitLab, GitHub, Artifactory, Slack</td>
+        		<td><span class="pips" data-pips="5"></span></td>
+        	</tr>
+        	<tr class="tech-skill-minor">
+        		<td></td>
+        		<td>Nexus, Travis, Bamboo, Bitbucket, Puppet, Chef</td>
+        		<td><span class="pips" data-pips="2"></span></td>
+        	</tr>
+        	<tr class="tech-skill-major">
+        		<td colspan="2">Project, Team and Productivity Management Tools</td>
+        		<td></td>
+        	</tr>
+        	<tr class="tech-skill-minor">
+        		<td></td>
+        		<td>Jira, Confluence, GitLab, GitHub, Slack, Hackpad / Dropbox Paper, Slack, MediaWiki, Xwiki
+        		<td><span class="pips" data-pips="5"></span></td>
+        	</tr>
+        	<tr class="tech-skill-minor">
+        		<td></td>
+        		<td>Workfront, Trello, bugzilla, Office 365, LucidChart, Visio, Google Docs</td>
+        		<td><span class="pips" data-pips="3"></span></td>
+        	</tr>
+        	<tr class="tech-skill-major">
+        		<td colspan="2">Deployment and Provisioning Tools</td>
+        		<td></td>
+        	</tr>
+        	<tr class="tech-skill-minor">
+        		<td></td>
+        		<td>Terraform, Consul, ELK</td>
+        		<td><span class="pips" data-pips="3"></span></td>
+        	</tr>
+        	<tr class="tech-skill-minor">
+        		<td></td>
+        		<td>Salt, Packer, Puppet, Chef</td>
+        		<td><span class="pips" data-pips="2"></span></td>
+        	</tr>
+        	<tr class="tech-skill-major">
+        		<td colspan="2">Databases</td>
+        		<td></td>
+        	</tr>
+        	<tr class="tech-skill-minor">
+        		<td></td>
+        		<td>MS-SQL 2006, MySQL, PostGreSQL 9.+, Hazelcast, Cassandra</td>
+        		<td><span class="pips" data-pips="4"></span></td>
+        	</tr>
+        	<tr class="tech-skill-minor">
+        		<td></td>
+        		<td>Oracle 11g, MongoDB, Dynamo</td>
+        		<td><span class="pips" data-pips="3"></span></td>
+        	</tr>
+        	<tr class="tech-skill-major">
+        		<td colspan="2">Static Code Analysis</td>
+        		<td></td>
+        	</tr>
+        	<tr class="tech-skill-minor">
+        		<td></td>
+        		<td>SonarQube, CheckStyle, FindBugs, OWASP dependency check, jDepend</td>
+        		<td><span class="pips" data-pips="5"></span></td>
+        	</tr>
+        	<tr class="tech-skill-minor">
+        		<td></td>
+        		<td>CodeNarc, ScalaStyle, CppCheck, PMD, esLint, jsLint</td>
+        		<td><span class="pips" data-pips="4"></span></td>
+        	</tr>
+        	<tr class="tech-skill-major">
+        		<td colspan="2">Web servers</td>
+        		<td></td>
+        	</tr>
+        	<tr class="tech-skill-minor">
+        		<td></td>
+        		<td>Tomcat, Apache</td>
+        		<td><span class="pips" data-pips="5"></span></td>
+        	</tr>
+        	<tr class="tech-skill-minor">
+        		<td></td>
+        		<td>IIS, Jetty, JBoss, Glassfish</td>
+        		<td><span class="pips" data-pips="4"></span></td>
+        	</tr>
+        	<tr class="tech-skill-minor">
+        		<td></td>
+        		<td>Nginx</td>
+        		<td><span class="pips" data-pips="1"></span></td>
+        	</tr>
+        	<tr class="tech-skill-major">
+        		<td colspan="2">Distributed Communications</td>
+        		<td></td>
+        	</tr>
+        	<tr class="tech-skill-minor">
+        		<td></td>
+        		<td>JSON / JSON schema, XML, REST, SOAP, FIPA-ACL, Swagger, RabbitMQ</td>
+        		<td><span class="pips" data-pips="5"></span></td>
+        	</tr>
+        	<tr class="tech-skill-minor">
+        		<td></td>
+        		<td>RAML, ApiBlueprint</td>
+        		<td><span class="pips" data-pips="1"></span></td>
+        	</tr>
+        	<tr class="tech-skill-major">
+        		<td colspan="2">Operating Systems</td>
+        		<td></td>
+        	</tr>
+        	<tr class="tech-skill-minor">
+        		<td></td>
+        		<td>GNU/Linux (Debian Based), Windows (XP, 8, Server 2003, Server 2012), Android (2.2, 4+)</td>
+        		<td><span class="pips" data-pips="5"></span></td>
+        	</tr>
+        	<tr class="tech-skill-minor">
+        		<td></td>
+        		<td>GNU/Linux (RedHat Based),Windows Phone 8, OSX/macOS (Snow Leopard, Mountain Lion, El Capitan)</td>
+        		<td><span class="pips" data-pips="3"></span></td>
+        	</tr>
+        	<tr class="tech-skill-minor">
+        		<td></td>
+        		<td>BSD, Solaris, iOS, Windows 7, 10</td>
+        		<td><span class="pips" data-pips="2"></span></td>
+        	</tr>
+        	<tr class="tech-skill-major">
+        		<td colspan="2">Reporting and Rich Data Visualisation</td>
+        		<td></td>
+        	</tr>
+        	<tr class="tech-skill-minor">
+        		<td></td>
+        		<td>MS Reporting Server, Jasper, jFreeChart</td>
+        		<td><span class="pips" data-pips="4"></span></td>
+        	</tr>
+        	<tr class="tech-skill-minor">
+        		<td></td>
+        		<td>postGIS, nvd3, Pentaho</td>
+        		<td><span class="pips" data-pips="2"></span></td>
+        	</tr>
+        </table>
+        </div>
+
+        <h3>Education</h3>
+        <div class="general-section">
+
+        <h5>Bachelor of Science, University of Auckland<span class="date">2001 - 2004</span></h5>
+        <ul>
+          <li>Double Major Discrete Mathematics and Computer Science</li>
+          <li>A average</li>
+          <li>Awards
+            <ul>
+                <li>Senior prize, Mathematics</li>
+                <li>Senior Prize, Computer Science</li>
+                <li>Published research project to FLAIRS 2004</li>
+            </ul>
+          </li>
+        </ul>
+
+        <h5>Master of Science, University of Auckland<span class="date">2005 - 2006</span></h5>
+        <ul>
+          <li>Thesis Title: “Update Games on Weighted Graphs”</li>
+          <li>2nd Class Honours</li>
+          <li>Two novel proofs provided in the thesis</li>
+        </ul>
+
+        <h5>Doctor of Philosophy, University of Auckland<span class="date">2010 - 2014</span></h5>
+        <ul>
+          <li>Extensive readings in AI, semantic modelling and service oriented architecture</li>
+          <li>Paper accepted to ISWC 2010</li>
+          <li>Did not submit due to financial pressure</li>
+        </ul>
+
+        </div>
+
+
+        <h3>Professional Memberships</h3>
+        <div class="general-section">
+        <h5>IT Professionals NZ (ITP, ITPNZ)<span class="date">2010 - Present</span></h5>
+        <h5>Institute of Electrical and Electronics Engineers (IEEE)<span class="date">2005 - Present</span></h5>
+        <h5>Association for Computing Machinery (ACM)<span class="date">2005 - Present</span></h5>
+        </div>
+
+
+        <h3>References & Documentation</h3>
+        <div class="general-section">
+        <p>For the security of myself and my colleagues contact and identity details are omitted from this document.</p>
+        <p>A list of references, photo identification, and proof of citizenship will be provided upon request.</p>
+        </div>
+
+        </div>
+        <div class="col-sm-3 sidebar">
+          <div id="links">
+            <h4>Links</h4>
+            <ul>
+              <li><a href="mailto:bertinshaw.daniel@gmail.com"><i class="fas fa-at"></i> bertinshaw.daniel@gmail.com</a></li>
+              <li><a href="tel:+64226391334"><i class="fas fa-phone"></i> (+64) 022 6391 334</a></li>
+              <li><a href="https://github.com/sentientlaser"><i class="fab fa-github"></i> Github</a></li>
+              <li><a href="https://www.linkedin.com/in/daniel-bertinshaw-48a57789/"><i class="fab fa-linkedin"></i> Linkedin</a></li>
+              <li><a href="skype:live:.cid.5b5e6918374a0ad6"><i class="fab fa-skype"></i> Skype</a></li>
+            </ul>
+          </div>
+
+          <div class="sticky-top">
+            <div id="contents">
+              <h4>Contents</h4>
+              <ul id="contents-list">
+              </ul>
+            </div>
+
+            <div id="pip-bar">
+              <h4>Technical Skills</h4>
+              <ul>
+                <li id="pip-bar-5"><span class="pips" data-pips="5"></span> - Used extensively for large scale production systems.</li>
+                <li id="pip-bar-4"><span class="pips" data-pips="4"></span> - Used for small but non-trivial projects deployed to production.</li>
+                <li id="pip-bar-3"><span class="pips" data-pips="3"></span> - Used to build non-trivial projects but not for production.</li>
+                <li id="pip-bar-2"><span class="pips" data-pips="2"></span> - Used only for trivial or small projects.</li>
+                <li id="pip-bar-1"><span class="pips" data-pips="1"></span> - Understand the technology and can read code or config.</li>
+              </ul>
+            </div>
+          </div>
+
+
+        </div>
+      </div> <!--row-->
+    </div> <!--container-->
+  </body
+</html>
